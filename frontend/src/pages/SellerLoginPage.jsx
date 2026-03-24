@@ -1,33 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { motion, useMotionValue, useTransform } from "framer-motion";
-import { Store, Lock } from "lucide-react";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Store, Lock, ArrowRight } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { sellerLogin } from "../lib/api"; // Import API call
+import { sellerLogin } from "../lib/api";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function SellerLoginPage() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [mounted, setMounted] = useState(false);
+  const [focused, setFocused] = useState(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Orb motion
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const orbX = useTransform(mouseX, [0, typeof window !== "undefined" ? window.innerWidth : 1920], [-20, 20]);
-  const orbY = useTransform(mouseY, [0, typeof window !== "undefined" ? window.innerHeight : 1080], [-15, 15]);
-
-  useEffect(() => {
-    setMounted(true);
-    const handleMouse = (e) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
-    };
-    document.addEventListener("mousemove", handleMouse);
-    return () => document.removeEventListener("mousemove", handleMouse);
-  }, [mouseX, mouseY]);
-
-  // Mutation for login
   const { mutate: loginMutation, isPending, error } = useMutation({
     mutationFn: sellerLogin,
     onSuccess: () => {
@@ -41,105 +24,147 @@ export default function SellerLoginPage() {
     loginMutation(loginData);
   };
 
-  if (!mounted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <motion.div
-          className="text-white text-xl"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          Loading seller login...
-        </motion.div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Background Orbs */}
-      <motion.div className="absolute inset-0 opacity-30" style={{ x: orbX, y: orbY }}>
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-purple-500/40 to-pink-500/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-blue-500/30 to-purple-500/20 rounded-full blur-3xl"></div>
-      </motion.div>
+    <div className="min-h-screen bg-stone-950 flex">
+      {/* Left Panel */}
+      <div className="hidden lg:flex w-1/2 flex-col border-r border-stone-800 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: 'linear-gradient(to right, #f5f0e8 1px, transparent 1px), linear-gradient(to bottom, #f5f0e8 1px, transparent 1px)',
+            backgroundSize: '60px 60px'
+          }}
+        />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(202,138,4,0.06) 0%, transparent 70%)' }}
+        />
 
-      {/* Left Section */}
-      <div className="hidden lg:flex w-1/2 flex-col justify-center items-center p-12 relative z-10">
-        <motion.h1
-          className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 leading-tight text-center"
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          Welcome Back, Seller
-        </motion.h1>
-        <p className="mt-6 text-white/70 max-w-md text-lg text-center">
-          Manage your artisan store, track orders, and connect with your customers.
-        </p>
+        <div className="relative z-10 flex flex-col justify-between h-full p-14">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-amber-400 rounded-sm" />
+            <span className="text-stone-100 font-black tracking-widest text-sm uppercase">BaskIt</span>
+            <span className="text-stone-700 text-xs ml-2 uppercase tracking-widest border border-stone-800 px-2 py-0.5">Seller</span>
+          </div>
+
+          <div>
+            <span className="text-amber-400 text-xs tracking-[0.3em] uppercase font-medium block mb-5">
+              ✦ Seller Portal
+            </span>
+            <h1 className="text-6xl font-black text-stone-100 leading-[0.9] tracking-tight mb-6">
+              Welcome<br />
+              Back,<br />
+              <span className="text-transparent" style={{ WebkitTextStroke: '2px #d97706' }}>Seller.</span>
+            </h1>
+            <p className="text-stone-500 text-lg max-w-sm leading-relaxed">
+              Manage your artisan store, track orders, and connect with your customers.
+            </p>
+
+            {/* Feature list */}
+            <div className="mt-10 space-y-3">
+              {[
+                'Manage product listings',
+                'Track orders in real-time',
+                'View sales analytics',
+                'Connect with customers'
+              ].map((f) => (
+                <div key={f} className="flex items-center gap-3 text-stone-500 text-sm">
+                  <div className="w-1.5 h-1.5 bg-amber-400 rounded-sm flex-shrink-0" />
+                  {f}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {['Verified Sellers', 'Secure Portal', 'Analytics'].map((t) => (
+              <span key={t} className="text-stone-700 text-xs tracking-widest">✦ {t}</span>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Right Section - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative z-10">
+      {/* Right Panel — Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <motion.div
-          className="w-full max-w-md bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-xl"
-          initial={{ opacity: 0, y: 40 }}
+          className="w-full max-w-md"
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-bold text-white mb-6 text-center">Seller Login</h2>
-          {error && <p className="text-red-500 mb-4 text-center">{error.response?.data?.message || "Login failed. Try again."}</p>}
+          <div className="flex items-center gap-2 mb-12 lg:hidden">
+            <div className="w-5 h-5 bg-amber-400 rounded-sm" />
+            <span className="text-stone-100 font-black tracking-widest text-sm uppercase">BaskIt</span>
+          </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            {/* Email */}
-            <div>
-              <label className="block text-white/80 text-sm mb-2">Email</label>
-              <div className="flex items-center bg-white/10 border border-white/20 rounded-xl px-4 py-3">
-                <Store className="text-white/60 mr-3" size={18} />
-                <input
-                  type="email"
-                  placeholder="seller@example.com"
-                  value={loginData.email}
-                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                  className="bg-transparent text-white w-full outline-none placeholder-white/40"
-                  required
-                />
-              </div>
+          <div className="mb-10">
+            <span className="text-amber-400 text-xs tracking-[0.3em] uppercase font-medium block mb-3">Seller Account</span>
+            <h2 className="text-3xl font-black text-stone-100">Seller Sign In</h2>
+            <p className="text-stone-600 text-sm mt-1">Access your seller dashboard</p>
+          </div>
+
+          {error && (
+            <div className="border border-red-500/30 bg-red-500/5 px-4 py-3 mb-6 text-red-400 text-sm">
+              {error.response?.data?.message || "Login failed. Try again."}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-0 border border-stone-800">
+            <div className={`border-b border-stone-800 transition-colors ${focused === 'email' ? 'bg-stone-900/60' : ''}`}>
+              <label className="flex items-center gap-2 text-stone-600 text-xs uppercase tracking-widest px-5 pt-4 pb-1">
+                <Store size={10} /> Business Email
+              </label>
+              <input
+                type="email"
+                placeholder="seller@example.com"
+                value={loginData.email}
+                onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                onFocus={() => setFocused('email')}
+                onBlur={() => setFocused(null)}
+                className="w-full bg-transparent px-5 pb-4 pt-1 text-stone-100 focus:outline-none placeholder-stone-700 text-base"
+                required
+              />
             </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-white/80 text-sm mb-2">Password</label>
-              <div className="flex items-center bg-white/10 border border-white/20 rounded-xl px-4 py-3">
-                <Lock className="text-white/60 mr-3" size={18} />
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={loginData.password}
-                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                  className="bg-transparent text-white w-full outline-none placeholder-white/40"
-                  required
-                />
-              </div>
+            <div className={`transition-colors ${focused === 'password' ? 'bg-stone-900/60' : ''}`}>
+              <label className="flex items-center gap-2 text-stone-600 text-xs uppercase tracking-widest px-5 pt-4 pb-1">
+                <Lock size={10} /> Password
+              </label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={loginData.password}
+                onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                onFocus={() => setFocused('password')}
+                onBlur={() => setFocused(null)}
+                className="w-full bg-transparent px-5 pb-4 pt-1 text-stone-100 focus:outline-none placeholder-stone-700 text-base"
+                required
+              />
             </div>
 
-            {/* Submit Button */}
             <motion.button
               type="submit"
               disabled={isPending}
-              className="w-full py-4 mt-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-purple-500 to-pink-500 shadow-md hover:from-purple-600 hover:to-pink-600 disabled:opacity-50"
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.97 }}
+              className="w-full py-5 bg-amber-400 text-stone-950 font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 hover:bg-amber-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              whileHover={!isPending ? { scale: 1.005 } : {}}
+              whileTap={!isPending ? { scale: 0.998 } : {}}
             >
-              {isPending ? "Logging in..." : "Login"}
+              {isPending ? 'Signing In...' : (
+                <><span>Access Dashboard</span><ArrowRight size={16} /></>
+              )}
             </motion.button>
           </form>
 
-          {/* Signup Link */}
-          <p className="mt-6 text-center text-white/60">
-            Don’t have an account?{" "}
-            <Link to="/seller/signup" className="text-purple-400 hover:text-pink-400 font-semibold">
-              Sign up
+          <p className="mt-6 text-center text-stone-600 text-sm">
+            New to BaskIt?{" "}
+            <Link to="/seller/signup" className="text-amber-400 hover:text-amber-300 font-bold transition-colors">
+              Create seller account
             </Link>
           </p>
+
+          <div className="mt-4 text-center">
+            <a href="/user/login" className="text-stone-700 hover:text-stone-400 text-xs tracking-wide transition-colors">
+              Are you a buyer? →
+            </a>
+          </div>
         </motion.div>
       </div>
     </div>

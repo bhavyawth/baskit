@@ -20,29 +20,47 @@ import OrderDetailsPage from "./pages/OrderDetails.jsx";
 import { Toaster } from 'react-hot-toast';
 import { BouncingDotsLoader } from "./components/Loading.jsx";
 import AdminOrderManagement from "./pages/AdminOrderManagement.jsx";
+
 function App() {
-  const { isLoading, authUser,type } = useAuthUser();
+  const { isLoading, authUser, type } = useAuthUser();
   const isAuthenticated = Boolean(authUser);
+
   if (isLoading) {
-    return <BouncingDotsLoader/>; // Simple loader
+    return <BouncingDotsLoader />;
   }
 
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      {/* Toaster styled to match dark editorial theme */}
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            background: '#1c1917',       // stone-900
+            color: '#d6d3d1',            // stone-300
+            border: '1px solid #292524', // stone-800
+            borderRadius: '0px',
+            fontSize: '13px',
+            fontWeight: '600',
+            letterSpacing: '0.05em',
+            padding: '12px 16px',
+          },
+          success: {
+            iconTheme: { primary: '#d97706', secondary: '#1c1917' }, // amber-600
+          },
+          error: {
+            iconTheme: { primary: '#f87171', secondary: '#1c1917' },
+          },
+        }}
+      />
+
       <Routes>
-        <Route
-          path="/"
-          element={<Home />} // Conditional rendering
-        />
-        <Route
-          path="/market"
-          element={
-              <ArtisanMarketplace />
-          }
-        />
-        
-        <Route path="/orders/:orderId" element={<OrderDetailsPage/>}></Route>
+        <Route path="/" element={<Home />} />
+
+        <Route path="/market" element={<ArtisanMarketplace />} />
+
+        <Route path="/orders/:orderId" element={<OrderDetailsPage />} />
 
         <Route
           path="/sellermarket"
@@ -50,51 +68,74 @@ function App() {
             isAuthenticated && type === "seller" ? (
               <Dashboard />
             ) : (
-              <Navigate to="/market" /> // homepage for consumers
+              <Navigate to="/market" />
             )
-          } 
+          }
         />
 
-        <Route path="/product/:id" element={<ProductDetailPage />} /> {/* Public? Add guard if needed */}
+        <Route path="/product/:id" element={<ProductDetailPage />} />
+
         <Route
           path="/seller/:id"
-          element={isAuthenticated ? <SellerProfilePage /> : <Navigate to="/user/signup" />} // Protect seller profile
+          element={isAuthenticated ? <SellerProfilePage /> : <Navigate to="/user/signup" />}
         />
+
         <Route
           path="/user"
-          element={isAuthenticated ? <UserProfilePage /> : <Navigate to="/user/signup" />} // Protect user profile
+          element={isAuthenticated ? <UserProfilePage /> : <Navigate to="/user/signup" />}
         />
+
+        <Route path="/hi" element={<Home />} />
+
         <Route
           path="/add-item"
-          element={isAuthenticated ? <SellerAddItemPage /> : <Navigate to="/seller/signup" />} // Protect, assuming seller route
+          element={isAuthenticated ? <SellerAddItemPage /> : <Navigate to="/seller/signup" />}
         />
+
         <Route
           path="/user/signup"
-          element={!isAuthenticated ? <UserSignupPage /> : <Navigate to="/market" />} // Redirect if already signed up
+          element={!isAuthenticated ? <UserSignupPage /> : <Navigate to="/market" />}
         />
+
         <Route
           path="/seller/signup"
-          element={!isAuthenticated ? <SellerSignupPage /> : <Navigate to="/sellermarket" />} // Similar for seller
+          element={!isAuthenticated ? <SellerSignupPage /> : <Navigate to="/sellermarket" />}
         />
+
         <Route
           path="/seller/dashboard"
-          element={isAuthenticated && type=="seller"? <SellerCorner /> : <Navigate to="/market" />} // Similar for seller
+          element={isAuthenticated && type === "seller" ? <SellerCorner /> : <Navigate to="/market" />}
         />
-        <Route path="/cart" element={isAuthenticated && type=="user"?<CartPage/>:<Navigate to={"/"}/>}/>
 
-        <Route path="/seller/login" 
+        <Route
+          path="/cart"
+          element={isAuthenticated && type === "user" ? <CartPage /> : <Navigate to="/" />}
+        />
+
+        <Route
+          path="/seller/login"
           element={!isAuthenticated ? <SellerLoginPage /> : <Navigate to="/sellermarket" />}
         />
 
-        <Route path="/user/login" 
+        <Route
+          path="/user/login"
           element={!isAuthenticated ? <UserLoginPage /> : <Navigate to="/market" />}
         />
 
         <Route path="/sellermarket/verify" element={<VerifySeller />} />
-          <Route path="/admin" element={(type==="seller" && authUser.email==="abhinav@gmail.com") ? <AdminOrderManagement /> :type==="user"?<Navigate to={"/market"}/>:<Navigate to={"/sellerMarket"}/>}></Route>
+
+        <Route
+          path="/admin"
+          element={
+            type === "seller" && authUser.email === "abhinav@gmail.com"
+              ? <AdminOrderManagement />
+              : type === "user"
+              ? <Navigate to="/market" />
+              : <Navigate to="/sellermarket" />
+          }
+        />
       </Routes>
 
-          
       <NavigationBar />
     </>
   );

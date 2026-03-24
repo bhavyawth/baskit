@@ -3,27 +3,29 @@ import { motion } from 'framer-motion';
 
 export const BouncingDotsLoader = ({ text = "Loading..." }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+    <div className="min-h-screen bg-stone-950 flex items-center justify-center">
       <div className="text-center">
-        {/* Three bouncing dots */}
-        <div className="flex space-x-2 mb-4 justify-center">
-          {[0, 1, 2].map((i) => (
+        {/* Architectural tick marks instead of blobs */}
+        <div className="flex items-end gap-1.5 mb-6 justify-center">
+          {[0, 1, 2, 3, 4].map((i) => (
             <motion.div
               key={i}
-              className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-              animate={{
-                y: [0, -20, 0],
-              }}
+              className="w-0.5 bg-amber-400"
+              animate={{ height: ['8px', '28px', '8px'] }}
               transition={{
-                duration: 0.8,
+                duration: 0.9,
                 repeat: Infinity,
-                delay: i * 0.2,
+                delay: i * 0.1,
+                ease: 'easeInOut',
               }}
             />
           ))}
         </div>
-        
-        <p className="text-white/80">{text}</p>
+
+        <div className="flex items-center gap-2 justify-center">
+          <div className="w-3 h-3 bg-amber-400 rounded-sm" />
+          <p className="text-stone-500 text-xs tracking-[0.3em] uppercase font-medium">{text}</p>
+        </div>
       </div>
     </div>
   );
